@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .github_client import normalize_repository
+from .health import build_health_report
 from .priority import score_priority
 from .similarity import find_duplicate_candidates
 from .triage import suggest_label_details
@@ -15,6 +16,7 @@ def build_analysis_report(
     repository: str,
     issues: list[dict[str, Any]],
     threshold: float = 0.35,
+    stale_days: int = 30,
 ) -> dict[str, Any]:
     """Build a report without modifying the source repository or its issues."""
     full_name = normalize_repository(repository)
@@ -68,6 +70,7 @@ def build_analysis_report(
             "potential_duplicate_pairs": len(duplicates),
             "priority_distribution": priority_counts,
         },
+        "health": build_health_report(issues, stale_days=stale_days),
         "issues": analyzed_issues,
         "duplicate_candidates": duplicates,
     }
