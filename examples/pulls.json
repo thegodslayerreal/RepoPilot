@@ -1,0 +1,5 @@
+[
+  {"number": 14, "title": "Add CSV export", "labels": ["feature"]},
+  {"number": 19, "title": "Fix startup exception", "labels": ["bug"]},
+  {"number": 22, "title": "Clarify installation guide", "labels": ["documentation"]}
+]

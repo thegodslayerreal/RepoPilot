@@ -1,0 +1,5 @@
+[
+  {"number": 12, "title": "Application crashes at startup", "body": "The application raises an exception when launched on Windows."},
+  {"number": 18, "title": "Startup crash on Windows", "body": "The app crashes when opened."},
+  {"number": 21, "title": "Add dark mode", "body": "Please add a dark theme to the settings page."}
+]
