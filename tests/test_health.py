@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+
 import pytest
 
 from repopilot.health import build_health_report
