@@ -21,7 +21,7 @@ def test_analysis_report_includes_suggestions_and_duplicate_candidates():
         },
         {
             "number": 3,
-            "title": "Add dark theme",
+            "title": "Implement dark theme",
             "body": "New appearance option",
             "labels": [],
             "html_url": "https://github.com/octo/project/issues/3",
