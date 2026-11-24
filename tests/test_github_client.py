@@ -1,7 +1,7 @@
 import json
 from io import BytesIO
-from urllib.error import HTTPError
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 import pytest
 
@@ -96,6 +96,7 @@ def test_fetch_open_issues_explains_not_found():
         hdrs=None,
         fp=BytesIO(b'{"message":"Not Found"}'),
     )
-    with patch("repopilot.github_client.urlopen", side_effect=error):
-        with pytest.raises(GitHubAPIError, match="not found"):
-            fetch_open_issues("octo/missing")
+    with patch("repopilot.github_client.urlopen", side_effect=error), pytest.raises(
+        GitHubAPIError, match="not found"
+    ):
+        fetch_open_issues("octo/missing")
