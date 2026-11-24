@@ -87,6 +87,29 @@ text(el("issue-count"), summary.issues_analyzed ?? issues.length);
 text(el("suggestion-count"), summary.issues_with_suggested_labels ?? issues.filter(x => (x.suggested_labels||[]).length).length);
 text(el("duplicate-count"), summary.potential_duplicate_pairs ?? duplicates.length);
 text(el("label-count"), counts.size);
+function safeExternalUrl(value) {
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" || parsed.protocol === "http:" ? parsed.href : null;
+  } catch {
+    return null;
+  }
+}
+function issueLink(issue, label) {
+  const safeUrl = safeExternalUrl(issue?.url);
+  if (!safeUrl) {
+    const plain = document.createElement("span");
+    text(plain, label);
+    return plain;
+  }
+  const link = document.createElement("a");
+  text(link, label);
+  link.href = safeUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  return link;
+}
 function pill(label, suggested) {
   const span = document.createElement("span");
   span.className = suggested ? "pill suggested" : "pill";
@@ -113,7 +136,9 @@ if (duplicates.length) {
     const row=document.createElement("div"); row.className="duplicate";
     const first=byId.get(String(pair.first_number)); const second=byId.get(String(pair.second_number));
     const line=document.createElement("div");
-    text(line, "#" + pair.first_number + " " + (first?.title || "") + " ↔ #" + pair.second_number + " " + (second?.title || ""));
+    line.append(issueLink(first, "#" + pair.first_number + " " + (first?.title || "Issue")));
+    line.append(document.createTextNode(" ↔ "));
+    line.append(issueLink(second, "#" + pair.second_number + " " + (second?.title || "Issue")));
     const score=document.createElement("div"); score.className="score"; text(score, "Similarity: " + pair.similarity);
     row.append(line,score); duplicateBox.append(row);
   });
@@ -129,10 +154,8 @@ function renderRows(query) {
     const tr=document.createElement("tr");
     const titleCell=document.createElement("td");
     const title=document.createElement("div"); title.className="issue-title";
-    const link=document.createElement("a"); text(link, "#" + issue.number + " " + (issue.title || "Untitled"));
-    if (issue.url) { link.href=issue.url; link.target="_blank"; link.rel="noopener noreferrer"; }
-    else { link.removeAttribute("href"); }
-    title.append(link); titleCell.append(title);
+    title.append(issueLink(issue, "#" + issue.number + " " + (issue.title || "Untitled")));
+    titleCell.append(title);
     const current=document.createElement("td"); (issue.labels||[]).forEach(label=>current.append(pill(label,false)));
     const suggested=document.createElement("td");
     (issue.suggested_labels||[]).forEach(label=>{

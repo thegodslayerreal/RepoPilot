@@ -67,3 +67,26 @@ def test_render_dashboard_escapes_script_terminators_in_untrusted_issue_text():
         html.split('<script id="report-data" type="application/json">', 1)[1]
         .split("</script>", 1)[0]
     )["issues"][0]["title"] == '</script><script>alert("xss")</script>'
+
+
+
+def test_dashboard_validates_external_urls_and_links_duplicate_candidates():
+    html = render_dashboard(sample_report())
+
+    assert 'parsed.protocol === "https:" || parsed.protocol === "http:"' in html
+    assert 'link.href = safeUrl' in html
+    assert 'link.rel = "noopener noreferrer"' in html
+    assert 'line.append(issueLink(first' in html
+    assert 'line.append(issueLink(second' in html
+    assert 'link.href=issue.url' not in html
+
+
+def test_dashboard_does_not_trust_javascript_issue_urls():
+    report = sample_report()
+    report["issues"][0]["url"] = "javascript:alert(1)"
+
+    html = render_dashboard(report)
+
+    assert "function safeExternalUrl(value)" in html
+    assert 'parsed.protocol === "https:" || parsed.protocol === "http:"' in html
+    assert 'link.href=issue.url' not in html

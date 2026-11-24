@@ -1,15 +1,27 @@
 """Transparent, advisory issue-priority scoring."""
 
-import re
-
 
 # Each signal contributes points once, even if it appears repeatedly.
+# Severe security and data-integrity risks are critical on their own.
 _PRIORITY_SIGNALS = (
-    (5, ("remote code execution", "security vulnerability", "data loss", "data corruption")),
+    (7, ("remote code execution", "security vulnerability", "data loss", "data corruption")),
     (3, ("production outage", "crash", "regression", "blocking", "blocks release")),
     (2, ("urgent", "asap", "release blocker", "cannot use", "can't use")),
     (1, ("all users", "every request", "all requests", "affects everyone")),
 )
+
+
+def _contains_signal(text: str, signal: str) -> bool:
+    """Match a phrase without treating it as part of a larger word."""
+    start = 0
+    while (index := text.find(signal, start)) != -1:
+        end = index + len(signal)
+        left_is_word = index > 0 and (text[index - 1].isalnum() or text[index - 1] == "_")
+        right_is_word = end < len(text) and (text[end].isalnum() or text[end] == "_")
+        if not left_is_word and not right_is_word:
+            return True
+        start = index + 1
+    return False
 
 
 def score_priority(title: str, body: str = "") -> dict[str, object]:
@@ -22,14 +34,7 @@ def score_priority(title: str, body: str = "") -> dict[str, object]:
     reasons: list[str] = []
 
     for points, signals in _PRIORITY_SIGNALS:
-        matched = next(
-            (
-                signal
-                for signal in signals
-                if re.search(rf"(?<!\w){re.escape(signal)}(?!\w)", text)
-            ),
-            None,
-        )
+        matched = next((signal for signal in signals if _contains_signal(text, signal)), None)
         if matched:
             score += points
             reasons.append(f"+{points}: matched '{matched}'")
