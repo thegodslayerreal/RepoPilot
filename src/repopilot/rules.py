@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class LabelRule:
     label: str
     keywords: tuple[str, ...]
+
 
 DEFAULT_RULES = (
     LabelRule("bug", ("bug", "crash", "error", "exception", "broken", "fail")),
