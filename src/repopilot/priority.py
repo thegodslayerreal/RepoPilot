@@ -1,7 +1,5 @@
 """Transparent, advisory issue-priority scoring."""
 
-from __future__ import annotations
-
 import re
 
 
