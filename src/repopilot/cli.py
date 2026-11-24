@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from .analysis import build_analysis_report
+from .dashboard import render_dashboard, serve_dashboard
 from .github_client import GitHubAPIError, fetch_open_issues
 from .release_notes import draft_release_notes
 from .similarity import find_duplicate_candidates
@@ -31,19 +32,20 @@ def main() -> None:
         help="Fetch open issues from a GitHub repository and generate a read-only report.",
     )
     analyze.add_argument("repository", help="GitHub owner/name or repository URL")
-    analyze.add_argument(
-        "--limit",
-        type=int,
-        default=100,
-        help="Maximum open issues to fetch (1-1000)",
-    )
-    analyze.add_argument(
-        "--threshold",
-        type=float,
-        default=0.35,
-        help="Duplicate similarity threshold",
-    )
+    analyze.add_argument("--limit", type=int, default=100, help="Maximum open issues to fetch (1-1000)")
+    analyze.add_argument("--threshold", type=float, default=0.35)
     analyze.add_argument("--output", type=Path, help="Write the JSON report to this path")
+
+    dashboard = commands.add_parser(
+        "dashboard",
+        help="Create a standalone HTML dashboard or serve an interactive local dashboard.",
+    )
+    dashboard.add_argument("repository", nargs="?", help="GitHub owner/name or repository URL")
+    dashboard.add_argument("--input", type=Path, help="Use an existing JSON analysis report")
+    dashboard.add_argument("--limit", type=int, default=100)
+    dashboard.add_argument("--threshold", type=float, default=0.35)
+    dashboard.add_argument("--output", type=Path, help="Write standalone HTML instead of serving")
+    dashboard.add_argument("--port", type=int, default=8765)
 
     args = parser.parse_args()
     if args.command == "suggest-labels":
@@ -63,19 +65,35 @@ def main() -> None:
     elif args.command == "analyze":
         try:
             issues = fetch_open_issues(
-                args.repository,
-                limit=args.limit,
-                token=os.environ.get("GITHUB_TOKEN"),
+                args.repository, limit=args.limit, token=os.environ.get("GITHUB_TOKEN")
             )
             report = build_analysis_report(args.repository, issues, args.threshold)
             rendered = json.dumps(report, indent=2, ensure_ascii=False)
             if args.output:
                 args.output.write_text(f"{rendered}\n", encoding="utf-8")
-                print(
-                    f"Analyzed {len(issues)} open issues from {report['repository']}. "
-                    f"Report saved to {args.output}"
-                )
+                print(f"Analyzed {len(issues)} open issues from {report['repository']}. Report saved to {args.output}")
             else:
                 print(rendered)
         except (GitHubAPIError, ValueError, OSError) as error:
+            parser.exit(2, f"{parser.prog}: error: {error}\n")
+    elif args.command == "dashboard":
+        try:
+            if args.input and args.repository:
+                parser.error("Use either a repository argument or --input, not both.")
+            if not args.input and not args.repository:
+                parser.error("Provide a repository or an existing JSON report with --input.")
+            if args.input:
+                report = json.loads(args.input.read_text(encoding="utf-8"))
+            else:
+                issues = fetch_open_issues(
+                    args.repository, limit=args.limit, token=os.environ.get("GITHUB_TOKEN")
+                )
+                report = build_analysis_report(args.repository, issues, args.threshold)
+            document = render_dashboard(report)
+            if args.output:
+                args.output.write_text(document, encoding="utf-8")
+                print(f"HTML dashboard written to {args.output}")
+            else:
+                serve_dashboard(report, port=args.port)
+        except (GitHubAPIError, ValueError, OSError, json.JSONDecodeError) as error:
             parser.exit(2, f"{parser.prog}: error: {error}\n")
