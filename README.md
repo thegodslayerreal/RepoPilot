@@ -9,6 +9,7 @@ A local-first toolkit for practical GitHub repository maintenance.
 - Draft release notes from merged pull request JSON.
 - Fetch open issues from a GitHub repository and analyse them in read-only mode.
 - Export repository analysis as JSON.
+- Generate a standalone HTML maintainer dashboard or serve an interactive dashboard locally.
 - Run a read-only issue suggestion workflow in GitHub Actions.
 
 ## Install
@@ -46,9 +47,29 @@ repopilot analyze pallets/flask --limit 50
 
 The `--limit` option is a maximum number of issues to analyse, not a guarantee that the repository has that many open issues. GitHub's issues endpoint also returns pull requests, which RepoPilot deliberately excludes. A repository may therefore return fewer issues than the requested limit, including zero.
 
-The report contains the repository name, generation timestamp, issue titles and URLs, current labels, suggested labels, and duplicate candidates. Issue bodies are used locally for similarity analysis but are not copied into the report.
+## Dashboard
 
-### Optional GitHub token
+Generate a standalone HTML dashboard that can be opened or shared without running a server:
+
+~~~bash
+repopilot dashboard pallets/flask --limit 100 --output flask-dashboard.html
+~~~
+
+Or start an interactive dashboard on your own computer:
+
+~~~bash
+repopilot dashboard pallets/flask --limit 100
+~~~
+
+The local dashboard binds to `127.0.0.1` only and opens in your default browser. Stop it with Ctrl+C in the terminal. It includes repository summary metrics, suggested-label distribution, potential duplicate pairs, and a searchable issue table. The standalone HTML export contains the report data and interface in one file and works offline after generation.
+
+You can also create a dashboard from an existing JSON analysis report:
+
+~~~bash
+repopilot dashboard --input flask-report.json --output flask-dashboard.html
+~~~
+
+## Optional GitHub token
 
 Public repositories can be analysed without authentication. GitHub currently allows 60 unauthenticated REST API requests per hour, per originating IP address. To increase the available rate limit, set a token in your shell before running RepoPilot.
 
@@ -70,7 +91,7 @@ Use a token with the minimum permissions required. RepoPilot does not print or s
 
 ## Read-only safety
 
-The live analysis command only makes GET requests to GitHub. It does not create labels, post comments, assign issues, close issues, or change repository settings. The existing local commands do not make network requests.
+The live analysis and dashboard commands only fetch repository data. They do not create labels, post comments, assign issues, close issues, or change repository settings. The local dashboard server listens on localhost, not on the public network.
 
 ## Development
 
@@ -80,7 +101,7 @@ pytest
 ruff check .
 ~~~
 
-Tests mock GitHub responses, so the test suite does not require a network connection or a GitHub token.
+Tests mock GitHub responses and test dashboard rendering, so the test suite does not require a network connection or a GitHub token.
 
 ## Project status
 
@@ -93,8 +114,8 @@ Early development, version 0.1.0. Interfaces may change before 1.0.
 - [x] Release note drafting
 - [x] Tests and CI
 - [x] Read-only GitHub API integration
+- [x] HTML maintainer dashboard and standalone export
 - [ ] Repository-specific rule configuration
-- [ ] HTML maintainer report
 - [ ] Optional semantic duplicate detection
 
 See CONTRIBUTING.md. Licensed under MIT.
