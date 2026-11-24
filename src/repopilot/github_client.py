@@ -130,12 +130,18 @@ def fetch_open_issues(
                 for label in item.get("labels", [])
                 if isinstance(label, dict) and label.get("name")
             ]
+            assignees = [
+                str(assignee["login"])
+                for assignee in item.get("assignees", [])
+                if isinstance(assignee, dict) and assignee.get("login")
+            ]
             issues.append(
                 {
                     "number": item.get("number"),
                     "title": str(item.get("title") or "Untitled"),
                     "body": str(item.get("body") or ""),
                     "labels": labels,
+                    "assignees": assignees,
                     "html_url": item.get("html_url"),
                     "state": item.get("state"),
                     "created_at": item.get("created_at"),
