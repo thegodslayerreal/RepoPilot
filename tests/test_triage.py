@@ -1,5 +1,6 @@
 from repopilot.triage import suggest_labels
 
+
 def test_bug_rule_matches_title_and_body():
     assert "bug" in suggest_labels("App crashes", "It raises an exception")
 

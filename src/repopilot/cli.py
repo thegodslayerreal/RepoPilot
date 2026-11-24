@@ -1,9 +1,11 @@
 import argparse
 import json
 from pathlib import Path
+
 from .release_notes import draft_release_notes
 from .similarity import find_duplicate_candidates
 from .triage import suggest_labels
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="repopilot")

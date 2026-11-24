@@ -1,5 +1,7 @@
 import pytest
+
 from repopilot.similarity import find_duplicate_candidates, jaccard_similarity
+
 
 def test_jaccard_score():
     assert jaccard_similarity("red blue green", "red blue") == pytest.approx(2 / 3)
