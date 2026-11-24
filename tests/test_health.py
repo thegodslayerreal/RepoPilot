@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 from repopilot.health import build_health_report
 
-
 AS_OF = datetime(2026, 11, 25, tzinfo=timezone.utc)
 
 
