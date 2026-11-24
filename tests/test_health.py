@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
 
-import pytest
-
 from repopilot.health import build_health_report
 
 
@@ -51,5 +49,7 @@ def test_health_report_handles_missing_and_invalid_timestamps():
 
 
 def test_health_report_rejects_invalid_stale_threshold():
+    import pytest
+
     with pytest.raises(ValueError, match="stale_days"):
         build_health_report([], stale_days=0, as_of=AS_OF)
