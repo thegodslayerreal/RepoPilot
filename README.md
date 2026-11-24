@@ -44,6 +44,8 @@ You can also use the shorter owner/name form:
 repopilot analyze pallets/flask --limit 50
 ~~~
 
+The `--limit` option is a maximum number of issues to analyse, not a guarantee that the repository has that many open issues. GitHub's issues endpoint also returns pull requests, which RepoPilot deliberately excludes. A repository may therefore return fewer issues than the requested limit, including zero.
+
 The report contains the repository name, generation timestamp, issue titles and URLs, current labels, suggested labels, and duplicate candidates. Issue bodies are used locally for similarity analysis but are not copied into the report.
 
 ### Optional GitHub token
