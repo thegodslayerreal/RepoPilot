@@ -9,6 +9,7 @@ A local-first toolkit for practical GitHub repository maintenance.
 - Draft release notes from merged pull request JSON.
 - Fetch open issues from a GitHub repository and analyse them in read-only mode.
 - Export repository analysis as JSON.
+- Calculate stale-issue, assignment, and issue-age health metrics.
 - Generate a standalone HTML maintainer dashboard or serve an interactive dashboard locally.
 - Run a read-only issue suggestion workflow in GitHub Actions.
 
@@ -61,7 +62,7 @@ Or start an interactive dashboard on your own computer:
 repopilot dashboard pallets/flask --limit 100
 ~~~
 
-The local dashboard binds to `127.0.0.1` only and opens in your default browser. Stop it with Ctrl+C in the terminal. It includes repository summary metrics, suggested-label distribution, potential duplicate pairs, and a searchable issue table. The standalone HTML export contains the report data and interface in one file and works offline after generation.
+The local dashboard binds to `127.0.0.1` only and opens in your default browser. Stop it with Ctrl+C in the terminal. It includes repository summary metrics, issue-health metrics, suggested-label distribution, potential duplicate pairs, and a searchable issue table. The standalone HTML export contains the report data and interface in one file and works offline after generation.
 
 You can also create a dashboard from an existing JSON analysis report:
 
