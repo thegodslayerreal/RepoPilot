@@ -1,19 +1,31 @@
-from repopilot.release_notes import draft_release_notes
+from collections import defaultdict
+from typing import Any
 
+ORDER = ("breaking-change", "feature", "bug", "documentation", "other")
+HEADINGS = {
+    "breaking-change": "Breaking changes",
+    "feature": "Features",
+    "bug": "Bug fixes",
+    "documentation": "Documentation",
+    "other": "Other changes",
+}
 
-def test_release_notes_categories():
-    result = draft_release_notes(
-        [
-            {"number": 2, "title": "Fix login crash", "labels": ["bug"]},
-            {"number": 1, "title": "Add export", "labels": ["feature"]},
-        ]
-    )
+def draft_release_notes(pulls: list[dict[str, Any]]) -> str:
+    groups = defaultdict(list)
+    for pull in pulls:
+        labels = {str(label).casefold() for label in pull.get("labels", [])}
+        category = next((name for name in ORDER[:-1] if name in labels), "other")
+        groups[category].append(pull)
 
-    assert "## Features" in result
-    assert "Add export (#1)" in result
-    assert "## Bug fixes" in result
-    assert "Fix login crash (#2)" in result
-
-
-def test_empty_release_notes():
-    assert draft_release_notes([]) == "# Release notes\n"
+    lines = ["# Release notes", ""]
+    for category in ORDER:
+        entries = groups.get(category, [])
+        if not entries:
+            continue
+        lines.extend([f"## {HEADINGS[category]}", ""])
+        for pull in sorted(entries, key=lambda item: int(item.get("number", 0))):
+            number = pull.get("number")
+            suffix = f" (#{number})" if number is not None else ""
+            lines.append(f"- {str(pull.get('title', 'Untitled')).strip()}{suffix}")
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
