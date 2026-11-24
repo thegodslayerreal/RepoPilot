@@ -6,6 +6,7 @@ class LabelRule:
     label: str
     keywords: tuple[str, ...]
 
+
 DEFAULT_RULES = (
     LabelRule("bug", ("bug", "crash", "error", "exception", "broken", "fail")),
     LabelRule("feature", ("feature", "add", "support", "implement", "enhancement")),
