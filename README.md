@@ -119,3 +119,15 @@ Early development, version 0.1.0. Interfaces may change before 1.0.
 - [ ] Optional semantic duplicate detection
 
 See CONTRIBUTING.md. Licensed under MIT.
+
+
+## Explainable triage and priority scoring
+
+Analysis reports include the keyword that triggered each suggested label, plus an
+advisory priority score from 0 to 10. Priority levels are **low**, **medium**,
+**high**, and **critical**. The report lists the matched impact or urgency signals
+so maintainers can review why a score was assigned. These deterministic heuristics
+are starting points for human review, not a substitute for maintainer judgment.
+
+The HTML dashboard shows each issue's priority and scoring reasons. Suggested-label
+pills expose their matching keyword explanation on hover.
