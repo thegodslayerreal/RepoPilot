@@ -37,6 +37,17 @@ def sample_report():
         "duplicate_candidates": [
             {"first_number": 1, "second_number": 2, "similarity": 0.42}
         ],
+        "health": {
+            "stale_issue_count": 1,
+            "unassigned_issue_count": 1,
+            "average_issue_age_days": 76.0,
+            "issue_age_buckets": {
+                "under_7_days": 0,
+                "7_to_30_days": 0,
+                "30_to_90_days": 1,
+                "over_90_days": 1,
+            },
+        },
     }
 
 
@@ -53,6 +64,12 @@ def test_render_dashboard_contains_report_data_and_dashboard_sections():
     assert "<th>Priority</th>" in html
     assert "priority-medium" in html
     assert "Matched keyword: docs" in html
+    assert 'id="health-panel"' in html
+    assert 'id="stale-issue-count"' in html
+    assert 'id="unassigned-issue-count"' in html
+    assert 'id="average-issue-age"' in html
+    assert 'id="issue-age-buckets"' in html
+    assert 'health.stale_issue_count ?? 0' in html
 
 
 def test_render_dashboard_escapes_script_terminators_in_untrusted_issue_text():
