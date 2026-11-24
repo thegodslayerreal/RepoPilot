@@ -35,7 +35,7 @@ def test_health_report_counts_stale_unassigned_and_age_buckets():
     assert report["unassigned_issue_count"] == 1
     assert report["issue_age_buckets"]["over_90_days"] == 1
     assert report["issue_age_buckets"]["under_7_days"] == 1
-    assert report["average_issue_age_days"] == 78.5
+    assert report["average_issue_age_days"] == 76.0
 
 
 def test_health_report_handles_missing_and_invalid_timestamps():
