@@ -43,3 +43,24 @@ def test_analysis_report_includes_suggestions_and_duplicate_candidates():
 def test_analysis_report_rejects_invalid_duplicate_threshold():
     with pytest.raises(ValueError, match="threshold"):
         build_analysis_report("octo/project", [], 1.5)
+
+
+def test_analysis_report_includes_explanations_and_priority_distribution():
+    report = build_analysis_report(
+        "octo/project",
+        [{"number": 4, "title": "Urgent application crash", "body": "Blocks release"}],
+    )
+
+    issue = report["issues"][0]
+    assert issue["suggested_labels"] == ["bug"]
+    assert issue["label_explanations"] == [
+        {"label": "bug", "reason": "Matched keyword: crash"}
+    ]
+    assert issue["priority"] == "high"
+    assert issue["priority_score"] == 5
+    assert report["summary"]["priority_distribution"] == {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 0,
+    }
