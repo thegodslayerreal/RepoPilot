@@ -5,7 +5,7 @@ from .rules import DEFAULT_RULES, LabelRule
 
 def _contains_keyword(text: str, keyword: str) -> bool:
     """Match a keyword or phrase without matching it inside a larger word."""
-    pattern = rf"(?<!\\w){re.escape(keyword.casefold())}(?!\\w)"
+    pattern = rf"(?<!\w){re.escape(keyword.casefold())}(?!\w)"
     return re.search(pattern, text) is not None
 
 
