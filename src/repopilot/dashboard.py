@@ -58,6 +58,15 @@ footer{color:var(--muted);font-size:12px;margin-top:22px}
 <div class="card"><div class="metric" id="duplicate-count">0</div><div class="metric-label">Potential duplicate pairs</div></div>
 <div class="card"><div class="metric" id="label-count">0</div><div class="metric-label">Distinct suggested labels</div></div>
 </section>
+<section class="panel" id="health-panel" hidden>
+<h2>Repository health</h2>
+<div class="grid" style="margin:0">
+<div class="card"><div class="metric" id="stale-issue-count">0</div><div class="metric-label">Stale issues</div></div>
+<div class="card"><div class="metric" id="unassigned-issue-count">0</div><div class="metric-label">Unassigned issues</div></div>
+<div class="card"><div class="metric" id="average-issue-age">N/A</div><div class="metric-label">Average issue age</div></div>
+<div class="card"><div class="metric" id="issue-age-buckets">N/A</div><div class="metric-label">Age buckets (under 7 / 7-30 / 30-90 / over 90 days)</div></div>
+</div>
+</section>
 <section class="layout">
 <div class="panel"><h2>Suggested label distribution</h2><div id="label-chart" class="empty">No suggestions in this report.</div></div>
 <div class="panel"><h2>Potential duplicate issues</h2><div id="duplicates" class="empty">No potential duplicates found.</div></div>
@@ -87,6 +96,22 @@ text(el("issue-count"), summary.issues_analyzed ?? issues.length);
 text(el("suggestion-count"), summary.issues_with_suggested_labels ?? issues.filter(x => (x.suggested_labels||[]).length).length);
 text(el("duplicate-count"), summary.potential_duplicate_pairs ?? duplicates.length);
 text(el("label-count"), counts.size);
+const health = report.health;
+if (health && typeof health === "object") {
+  el("health-panel").hidden = false;
+  text(el("stale-issue-count"), health.stale_issue_count ?? 0);
+  text(el("unassigned-issue-count"), health.unassigned_issue_count ?? 0);
+  text(
+    el("average-issue-age"),
+    health.average_issue_age_days == null ? "N/A" : health.average_issue_age_days + " days"
+  );
+  const buckets = health.issue_age_buckets || {};
+  text(
+    el("issue-age-buckets"),
+    [buckets.under_7_days, buckets["7_to_30_days"], buckets["30_to_90_days"], buckets.over_90_days]
+      .map(value => value ?? 0).join(" / ")
+  );
+}
 function safeExternalUrl(value) {
   if (typeof value !== "string" || !value.trim()) return null;
   try {
