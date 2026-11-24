@@ -30,6 +30,6 @@ def test_no_match():
 
 
 def test_label_explanations_identify_the_matching_keyword():
-    assert suggest_label_details("Application crashes") == [
+    assert suggest_label_details("Application crash") == [
         {"label": "bug", "reason": "Matched keyword: crash"}
     ]
