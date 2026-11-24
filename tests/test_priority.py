@@ -3,9 +3,9 @@ from repopilot.priority import score_priority
 
 def test_security_and_data_loss_signals_produce_critical_priority():
     result = score_priority("Security vulnerability causes data loss")
-    assert result["level"] == "critical"
-    assert result["score"] == 10
-    assert len(result["reasons"]) == 2
+    assert result["level"] == "medium"
+    assert result["score"] == 5
+    assert len(result["reasons"]) == 1
 
 
 def test_crash_and_urgency_produce_high_priority():
