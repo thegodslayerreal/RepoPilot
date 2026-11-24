@@ -10,10 +10,19 @@ def test_feature_rule_matches_specific_feature_language():
 
 
 def test_documentation_request_is_not_misclassified_as_feature():
-    assert suggest_labels(
-        "Add Cloudflare to Flask Hosting Platforms docs?",
-        "Add a link to the deployment guide.",
-    ) == ["documentation"]
+    title = "Add Cloudflare to Flask Hosting Platforms docs?"
+    body = (
+        "Cloudflare workers supports deploying Flask applications. "
+        "Could we add a link to this page to the Hosting Platforms section of the docs?"
+    )
+    assert suggest_labels(title, body) == ["documentation"]
+
+
+def test_keyword_matching_does_not_match_inside_larger_words():
+    assert "feature" not in suggest_labels(
+        "Add deployment documentation",
+        "This service supports deploying Flask applications.",
+    )
 
 
 def test_no_match():
