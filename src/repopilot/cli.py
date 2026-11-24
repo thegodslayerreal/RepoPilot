@@ -34,6 +34,7 @@ def main() -> None:
     analyze.add_argument("repository", help="GitHub owner/name or repository URL")
     analyze.add_argument("--limit", type=int, default=100, help="Maximum open issues to fetch (1-1000)")
     analyze.add_argument("--threshold", type=float, default=0.35)
+    analyze.add_argument("--stale-days", type=int, default=30, help="Days without an update before an issue is stale")
     analyze.add_argument("--output", type=Path, help="Write the JSON report to this path")
 
     dashboard = commands.add_parser(
@@ -44,6 +45,7 @@ def main() -> None:
     dashboard.add_argument("--input", type=Path, help="Use an existing JSON analysis report")
     dashboard.add_argument("--limit", type=int, default=100)
     dashboard.add_argument("--threshold", type=float, default=0.35)
+    dashboard.add_argument("--stale-days", type=int, default=30)
     dashboard.add_argument("--output", type=Path, help="Write standalone HTML instead of serving")
     dashboard.add_argument("--port", type=int, default=8765)
 
@@ -67,7 +69,9 @@ def main() -> None:
             issues = fetch_open_issues(
                 args.repository, limit=args.limit, token=os.environ.get("GITHUB_TOKEN")
             )
-            report = build_analysis_report(args.repository, issues, args.threshold)
+            report = build_analysis_report(
+                args.repository, issues, args.threshold, stale_days=args.stale_days
+            )
             rendered = json.dumps(report, indent=2, ensure_ascii=False)
             if args.output:
                 args.output.write_text(f"{rendered}\n", encoding="utf-8")
@@ -88,7 +92,9 @@ def main() -> None:
                 issues = fetch_open_issues(
                     args.repository, limit=args.limit, token=os.environ.get("GITHUB_TOKEN")
                 )
-                report = build_analysis_report(args.repository, issues, args.threshold)
+                report = build_analysis_report(
+                    args.repository, issues, args.threshold, stale_days=args.stale_days
+                )
             document = render_dashboard(report)
             if args.output:
                 args.output.write_text(document, encoding="utf-8")
@@ -97,3 +103,7 @@ def main() -> None:
                 serve_dashboard(report, port=args.port)
         except (GitHubAPIError, ValueError, OSError, json.JSONDecodeError) as error:
             parser.exit(2, f"{parser.prog}: error: {error}\n")
+
+
+if __name__ == "__main__":
+    main()
