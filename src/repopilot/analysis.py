@@ -6,8 +6,9 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .github_client import normalize_repository
+from .priority import score_priority
 from .similarity import find_duplicate_candidates
-from .triage import suggest_labels
+from .triage import suggest_label_details
 
 
 def build_analysis_report(
@@ -24,7 +25,8 @@ def build_analysis_report(
         title = str(issue.get("title") or "Untitled")
         body = str(issue.get("body") or "")
         labels = [str(label) for label in issue.get("labels", [])]
-        suggestions = suggest_labels(title, body)
+        label_details = suggest_label_details(title, body)
+        priority = score_priority(title, body)
 
         analyzed_issues.append(
             {
@@ -33,7 +35,11 @@ def build_analysis_report(
                 "url": issue.get("html_url"),
                 "state": issue.get("state", "open"),
                 "labels": labels,
-                "suggested_labels": suggestions,
+                "suggested_labels": [item["label"] for item in label_details],
+                "label_explanations": label_details,
+                "priority": priority["level"],
+                "priority_score": priority["score"],
+                "priority_reasons": priority["reasons"],
             }
         )
         duplicate_input.append(
@@ -47,6 +53,10 @@ def build_analysis_report(
     duplicates = find_duplicate_candidates(duplicate_input, threshold)
     generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
+    priority_counts = {
+        level: sum(issue["priority"] == level for issue in analyzed_issues)
+        for level in ("critical", "high", "medium", "low")
+    }
     return {
         "repository": full_name,
         "generated_at": generated_at,
@@ -56,6 +66,7 @@ def build_analysis_report(
                 bool(issue["suggested_labels"]) for issue in analyzed_issues
             ),
             "potential_duplicate_pairs": len(duplicates),
+            "priority_distribution": priority_counts,
         },
         "issues": analyzed_issues,
         "duplicate_candidates": duplicates,
