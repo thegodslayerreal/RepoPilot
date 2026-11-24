@@ -20,6 +20,10 @@ def sample_report():
                 "state": "open",
                 "labels": [],
                 "suggested_labels": ["documentation"],
+                "label_explanations": [{"label": "documentation", "reason": "Matched keyword: docs"}],
+                "priority": "medium",
+                "priority_score": 2,
+                "priority_reasons": ["+2: matched 'urgent'"],
             },
             {
                 "number": 2,
@@ -46,6 +50,9 @@ def test_render_dashboard_contains_report_data_and_dashboard_sections():
     assert "documentation" in html
     assert "issue-rows" in html
     assert "Search issues or labels" in html
+    assert "<th>Priority</th>" in html
+    assert "priority-medium" in html
+    assert "Matched keyword: docs" in html
 
 
 def test_render_dashboard_escapes_script_terminators_in_untrusted_issue_text():
