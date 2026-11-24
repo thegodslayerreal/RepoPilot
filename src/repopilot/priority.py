@@ -28,7 +28,7 @@ def score_priority(title: str, body: str = "") -> dict[str, object]:
             (
                 signal
                 for signal in signals
-                if re.search(rf"(?<!\\w){re.escape(signal)}(?!\\w)", text)
+                if re.search(rf"(?<!\w){re.escape(signal)}(?!\w)", text)
             ),
             None,
         )
