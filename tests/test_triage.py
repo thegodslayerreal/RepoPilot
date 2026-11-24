@@ -1,4 +1,4 @@
-from repopilot.triage import suggest_labels
+from repopilot.triage import suggest_label_details, suggest_labels
 
 
 def test_bug_rule_matches_title_and_body():
@@ -27,3 +27,9 @@ def test_keyword_matching_does_not_match_inside_larger_words():
 
 def test_no_match():
     assert suggest_labels("Hello there", "General context") == []
+
+
+def test_label_explanations_identify_the_matching_keyword():
+    assert suggest_label_details("Application crashes") == [
+        {"label": "bug", "reason": "Matched keyword: crash"}
+    ]
